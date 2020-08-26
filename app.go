@@ -11,11 +11,13 @@ import (
 )
 
 var App *Application
-
+var ReloadTime = 60 * time.Second
 var appInitFunc map[string]func()
+var resetChan chan struct{}
 
 func init() {
 	appInitFunc = make(map[string]func())
+	resetChan = make(chan struct{})
 }
 
 type Application struct {
@@ -81,10 +83,21 @@ func InitApp(debug bool, appEnv string, configDir, appConfName string) {
 				break
 			}
 			App.loadAppConf()
-			time.Sleep(60 * time.Second)
+			time.Sleep(ReloadTime)
 		}
 	}()
 	initial()
+}
+
+// for test
+func Reset() {
+	if len(resetChan) == 0 {
+		resetChan <- struct{}{}
+	}
+	App = nil
+	Conf = nil
+	appInitFunc = make(map[string]func())
+	resetChan = make(chan struct{})
 }
 
 // 初始化信息
@@ -99,10 +112,11 @@ func listenAppConfChange() {
 	go func() {
 		for {
 			select {
-			case <- App.AppConf.OnChange:
+			case <-resetChan:
+				return
+			case <-App.AppConf.OnChange:
 				initial()
 			}
 		}
 	}()
 }
-
