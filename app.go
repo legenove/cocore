@@ -86,6 +86,8 @@ func InitApp(debug bool, appEnv string, configDir, appConfName string) {
 			time.Sleep(ReloadTime)
 		}
 	}()
+	// 初始化log
+	initialLog(App)
 	initial()
 }
 

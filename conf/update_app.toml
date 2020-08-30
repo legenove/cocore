@@ -1,2 +1,4 @@
-abc = "234"
-bcd = "345"
+LOG_DIR = "/data/logs" # 默认/data/logs 可以配置
+LOG_ENABLE_LEVEL = "debug" # 默认info，debug, warning, error
+LOG_TIME_GROUP = "hour" # 默认daily 按照天分日志，可选hour 按照小时分日志
+update_val = "update"

@@ -1,1 +1,3 @@
-abc = "123"
+LOG_DIR = "/tmp/cocore/logs" # 默认/data/logs 可以配置
+LOG_ENABLE_LEVEL = "info" # 默认info，debug, warning, error
+LOG_TIME_GROUP = "daily" # 默认daily 按照天分日志，可选hour 按照小时分日志
