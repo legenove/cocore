@@ -51,7 +51,11 @@ const (
 )
 
 func init() {
-	LogPool = &Logger{writers: make(map[string]*lwriter), free: make(map[string]*fdGC)}
+	LogPool = &Logger{
+		writers:      make(map[string]*lwriter),
+		free:         make(map[string]*fdGC),
+		registerTime: make(map[string]int64),
+	}
 	go func() {
 		for {
 			for file, gc := range LogPool.free {
