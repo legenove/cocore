@@ -3,7 +3,7 @@ module github.com/legenove/cocore
 go 1.14
 
 require (
-	github.com/legenove/utils v0.0.0-20200724081548-f533644e1822
+	github.com/legenove/utils v0.0.0-20200903023119-a6d42e758182
 	github.com/legenove/viper_conf v1.0.3
 	github.com/magiconair/properties v1.8.2 // indirect
 	github.com/stretchr/testify v1.6.1
