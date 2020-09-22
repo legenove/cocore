@@ -145,15 +145,10 @@ func newLogger(file string) (*zap.Logger, func(), error) {
 	return logger, closeFD, nil
 }
 
-func (pl *Logger) getWriters(k string) (*lwriter, bool) {
-	pl.mutex.RLock()
-	defer pl.mutex.RUnlock()
-	l, ok := pl.writers[k]
-	return l, ok
-}
-
 func (pl *Logger) Instance(k string) (*zap.Logger, error) {
-	l, ok := pl.getWriters(k)
+	pl.mutex.Lock()
+	defer pl.mutex.Unlock()
+	l, ok := pl.writers[k]
 	if ok {
 		// 不需要判断，因为输入的时候，会优先创建文件
 		//f := getLogFile(k)
@@ -164,8 +159,6 @@ func (pl *Logger) Instance(k string) (*zap.Logger, error) {
 		//pl.free[l.file] = fdgc
 		//delete(pl.writers, k)
 	}
-	pl.mutex.Lock()
-	defer pl.mutex.Unlock()
 	var err error
 	file, err := initLogFile(k)
 	if err != nil {
