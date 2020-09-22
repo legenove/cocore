@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/legenove/cocore"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 	"os"
 	"os/exec"
 	"path"
@@ -80,8 +79,9 @@ func TestLogger_Instance(t *testing.T) {
 	log, err := cocore.LogPool.Instance(loggerName)
 	if err != nil {
 		t.Error(err.Error())
+		return
 	}
-	log.Info("msg", zap.String("test1", "123"))
+	log.Info().Str("test", "123").Msg("info")
 
 	os.RemoveAll("/tmp/cocore")
 }

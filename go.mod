@@ -8,7 +8,6 @@ require (
 	github.com/magiconair/properties v1.8.2 // indirect
 	github.com/rs/zerolog v1.20.0
 	github.com/stretchr/testify v1.6.1
-	go.uber.org/zap v1.15.0
 	golang.org/x/sys v0.0.0-20200824131525-c12d262b63d8 // indirect
 	gopkg.in/ini.v1 v1.60.1 // indirect
 )

@@ -3,7 +3,6 @@ package cocore
 import (
 	"github.com/legenove/utils"
 	"github.com/rs/zerolog"
-	"go.uber.org/zap"
 	"os"
 	"strings"
 	"sync"
@@ -122,7 +121,7 @@ func initialLog(app *Application) {
 }
 
 func newLogger(filePath string) (*zerolog.Logger, func(), error) {
-	writer, closeFD, err := zap.Open(filePath)
+	writer, err := os.OpenFile(filePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, os.ModePerm)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -136,7 +135,9 @@ func newLogger(filePath string) (*zerolog.Logger, func(), error) {
 	} else {
 		logger.Level(LogEnableLevel)
 	}
-	return &logger, closeFD, nil
+	return &logger, func() {
+		writer.Close()
+	}, nil
 }
 
 func (pl *Logger) Instance(k string) (*zerolog.Logger, error) {
