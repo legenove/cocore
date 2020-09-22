@@ -74,13 +74,23 @@ func init() {
 				if t < nowat-86410 {
 					LogPool.mutex.Lock()
 					delete(LogPool.registerTime, file)
-					delete(LogPool.writers, file)
+					l, ok := LogPool.writers[file]
+					if ok {
+						fdgc := &fdGC{free: l.free, expir: time.Now().Unix()}
+						LogPool.free[l.file] = fdgc
+						delete(LogPool.writers, file)
+					}
 					LogPool.mutex.Unlock()
 				} else {
 					// 防止文件被删除
 					if !utils.FileExists(getLogFile(file)) {
 						LogPool.mutex.Lock()
-						delete(LogPool.writers, file)
+						l, ok := LogPool.writers[file]
+						if ok {
+							fdgc := &fdGC{free: l.free, expir: time.Now().Unix()}
+							LogPool.free[l.file] = fdgc
+							delete(LogPool.writers, file)
+						}
 						LogPool.mutex.Unlock()
 					}
 				}
