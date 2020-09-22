@@ -69,15 +69,23 @@ func init() {
 	}()
 	go func() {
 		for {
+			nowat := time.Now().Unix()
 			for file, t := range LogPool.registerTime {
-				if t < time.Now().Unix()-86410 {
+				if t < nowat-86410 {
 					LogPool.mutex.Lock()
 					delete(LogPool.registerTime, file)
 					delete(LogPool.writers, file)
 					LogPool.mutex.Unlock()
+				} else {
+					// 防止文件被删除
+					if !utils.FileExists(getLogFile(file)) {
+						LogPool.mutex.Lock()
+						delete(LogPool.writers, file)
+						LogPool.mutex.Unlock()
+					}
 				}
 			}
-			time.Sleep(30 * time.Minute)
+			time.Sleep(2 * time.Minute)
 		}
 	}()
 }
