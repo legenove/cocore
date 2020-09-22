@@ -2,8 +2,8 @@ package cocore
 
 import (
 	"github.com/legenove/utils"
+	"github.com/rs/zerolog"
 	"go.uber.org/zap"
-	"go.uber.org/zap/zapcore"
 	"os"
 	"strings"
 	"sync"
@@ -11,7 +11,7 @@ import (
 )
 
 type lwriter struct {
-	logger *zap.Logger
+	logger *zerolog.Logger
 	free   func()
 	file   string
 }
@@ -34,7 +34,7 @@ var (
 	LogPool         *Logger
 	LogHost         string
 	TimeLocation, _ = utils.TimeLoadLocation()
-	LogEnableLevel  = zap.InfoLevel
+	LogEnableLevel  = zerolog.InfoLevel
 	LogFormat       string
 )
 
@@ -98,13 +98,13 @@ func initialLog(app *Application) {
 	LogPool.Debug = app.DEBUG
 	switch app.GetStringConfig("LOG_ENABLE_LEVEL", LOG_LEVEL_INFO) {
 	case LOG_LEVEL_WARN:
-		LogEnableLevel = zap.WarnLevel
+		LogEnableLevel = zerolog.WarnLevel
 	case LOG_LEVEL_ERROR:
-		LogEnableLevel = zap.ErrorLevel
+		LogEnableLevel = zerolog.ErrorLevel
 	case LOG_LEVEL_DEBUG:
-		LogEnableLevel = zap.DebugLevel
+		LogEnableLevel = zerolog.DebugLevel
 	default:
-		LogEnableLevel = zap.InfoLevel
+		LogEnableLevel = zerolog.InfoLevel
 	}
 	if app.GetStringConfig("LOG_TIME_GROUP", LOG_FORMAT_DAILY) == LOG_FORMAT_HOUR {
 		LogFormat = "20060102T15"
@@ -121,39 +121,25 @@ func initialLog(app *Application) {
 	LogHost = "/" + host
 }
 
-func newLogger(file string) (*zap.Logger, func(), error) {
-	encoderConfig := zap.NewProductionEncoderConfig()
-	encoderConfig.TimeKey = "timestamp"
-	encoderConfig.EncodeTime = func(ts time.Time, encoder zapcore.PrimitiveArrayEncoder) {
-		encoder.AppendInt64(ts.In(TimeLocation).Unix())
-	}
-
-	writer, closeFD, err := zap.Open(file)
+func newLogger(filePath string) (*zerolog.Logger, func(), error) {
+	writer, closeFD, err := zap.Open(filePath)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	var level zap.AtomicLevel
-	if LogPool.Debug {
-		level = zap.NewAtomicLevelAt(zap.DebugLevel)
-	} else {
-		level = zap.NewAtomicLevelAt(LogEnableLevel)
-	}
-
-	core := zapcore.NewCore(zapcore.NewJSONEncoder(encoderConfig), writer, level)
-	logger := zap.New(core)
 	host, e := os.Hostname()
 	if e != nil {
 		host = ""
 	}
-	f := []zapcore.Field{
-		zap.String("serverHostName", host),
+	logger := zerolog.New(writer).With().Timestamp().Str("host", host).Logger()
+	if LogPool.Debug {
+		logger.Level(zerolog.DebugLevel)
+	} else {
+		logger.Level(LogEnableLevel)
 	}
-	logger = logger.With(f...)
-	return logger, closeFD, nil
+	return &logger, closeFD, nil
 }
 
-func (pl *Logger) Instance(k string) (*zap.Logger, error) {
+func (pl *Logger) Instance(k string) (*zerolog.Logger, error) {
 	pl.mutex.Lock()
 	defer pl.mutex.Unlock()
 	l, ok := pl.writers[k]
