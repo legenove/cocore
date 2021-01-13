@@ -21,12 +21,12 @@ var (
 func init() {
 	cocore.ReloadTime = 3 * time.Second
 	cocore.InitApp(true, "", cocore.ConfigParam{
-		Type:      cocore.TYPE_CONFIG_FILE,
+		Source:    cocore.SOURCE_CONFIG_FILE,
 		Name:      "app.toml",
 		ParseType: "toml",
 		Nacos:     nil,
-		File:      &cocore.FileParam{
-			Env: "",
+		File: &cocore.FileParam{
+			Env:       "",
 			ConfigDir: "$GOPATH/src/github.com/legenove/cocore/conf",
 		},
 	})
@@ -40,12 +40,30 @@ func init() {
 func TestInitApp(t *testing.T) {
 	cocore.Reset()
 	cocore.InitApp(true, "", cocore.ConfigParam{
-		Type:      cocore.TYPE_CONFIG_FILE,
+		Source:    cocore.SOURCE_CONFIG_FILE,
 		Name:      "app.toml",
 		ParseType: "toml",
 		Nacos:     nil,
-		File:      &cocore.FileParam{
-			Env: "",
+		File: &cocore.FileParam{
+			Env:       "",
+			ConfigDir: "$GOPATH/src/github.com/legenove/cocore/conf",
+		},
+	})
+	res := cocore.App.GetStringConfig("abc", "abc")
+	assert.Equal(t, "abc", res)
+	res = cocore.App.GetStringConfig("LOG_ENABLE_LEVEL", "debug")
+	assert.Equal(t, "info", res)
+}
+
+func TestInitAppByYaml(t *testing.T) {
+	cocore.Reset()
+	cocore.InitApp(true, "", cocore.ConfigParam{
+		Source:    cocore.SOURCE_CONFIG_FILE,
+		Name:      "app.yaml",
+		ParseType: "yaml",
+		Nacos:     nil,
+		File: &cocore.FileParam{
+			Env:       "",
 			ConfigDir: "$GOPATH/src/github.com/legenove/cocore/conf",
 		},
 	})
@@ -59,12 +77,12 @@ func TestAutoLoadAppConfig(t *testing.T) {
 	cocore.Reset()
 	removeFile(filePath)
 	cocore.InitApp(true, "", cocore.ConfigParam{
-		Type:      cocore.TYPE_CONFIG_FILE,
+		Source:    cocore.SOURCE_CONFIG_FILE,
 		Name:      "app.toml",
 		ParseType: "toml",
 		Nacos:     nil,
-		File:      &cocore.FileParam{
-			Env: "",
+		File: &cocore.FileParam{
+			Env:       "",
 			ConfigDir: "$GOPATH/src/github.com/legenove/cocore/conf",
 		},
 	})
@@ -85,12 +103,12 @@ func TestInitFunc(t *testing.T) {
 	cocore.RegisterInitFunc("test", f)
 	var res string
 	cocore.InitApp(true, "", cocore.ConfigParam{
-		Type:      cocore.TYPE_CONFIG_FILE,
+		Source:    cocore.SOURCE_CONFIG_FILE,
 		Name:      "app.toml",
 		ParseType: "toml",
 		Nacos:     nil,
-		File:      &cocore.FileParam{
-			Env: "",
+		File: &cocore.FileParam{
+			Env:       "",
 			ConfigDir: "$GOPATH/src/github.com/legenove/cocore/conf",
 		},
 	})

@@ -13,26 +13,26 @@ import (
 var Conf ifacer.ConfigManager
 
 const (
-	_ = iota
-	TYPE_CONFIG_NACOS
-	TYPE_CONFIG_FILE
+	_                   = iota
+	SOURCE_CONFIG_NACOS // nacos配置
+	SOURCE_CONFIG_FILE  // 文件配置
 )
 
 func InitConf(param ConfigParam) {
 	if Conf != nil {
 		return
 	}
-	switch param.Type {
-	case TYPE_CONFIG_FILE:
+	switch param.Source {
+	case SOURCE_CONFIG_FILE:
 		Conf = viper_conf.NewConf(param.File.Env, param.File.GetConfPath())
-	case TYPE_CONFIG_NACOS:
+	case SOURCE_CONFIG_NACOS:
 		Conf = nacos_conf.NewConfManage(param.Nacos.NameSpace, param.Nacos.Group,
 			param.Nacos.DataIdPrefix, param.Nacos.ConfigClient)
 	}
 }
 
 type ConfigParam struct {
-	Type      int
+	Source    int
 	Name      string
 	ParseType string
 	options   []ifacer.OptionFunc
