@@ -1,12 +1,60 @@
 package cocore
 
-import "github.com/legenove/viper_conf"
+import (
+	"github.com/legenove/easy-nacos-go/nacos_conf"
+	"github.com/legenove/easyconfig/ifacer"
+	"github.com/legenove/viper_conf"
+	"github.com/nacos-group/nacos-sdk-go/clients/config_client"
+	"os"
+	"path/filepath"
+	"strings"
+)
 
-var Conf *viper_conf.FileConf
+var Conf ifacer.ConfigManager
 
-func InitConf(env, confPath string) {
+const (
+	_ = iota
+	TYPE_CONFIG_NACOS
+	TYPE_CONFIG_FILE
+)
+
+func InitConf(param ConfigParam) {
 	if Conf != nil {
 		return
 	}
-	Conf = viper_conf.NewConf(env, confPath)
+	switch param.Type {
+	case TYPE_CONFIG_FILE:
+		Conf = viper_conf.NewConf(param.File.Env, param.File.GetConfPath())
+	case TYPE_CONFIG_NACOS:
+		Conf = nacos_conf.NewConfManage(param.Nacos.NameSpace, param.Nacos.Group,
+			param.Nacos.DataIdPrefix, param.Nacos.ConfigClient)
+	}
+}
+
+type ConfigParam struct {
+	Type      int
+	Name      string
+	ParseType string
+	options   []ifacer.OptionFunc
+	Nacos     *NacosParam
+	File      *FileParam
+}
+
+type NacosParam struct {
+	NameSpace    string
+	Group        string
+	DataIdPrefix string
+	ConfigClient config_client.IConfigClient
+}
+
+type FileParam struct {
+	Env       string
+	ConfigDir string
+}
+
+func (fp *FileParam) GetConfPath() string {
+	if strings.HasPrefix(fp.ConfigDir, "$GOPATH") {
+		fp.ConfigDir = filepath.Join(os.Getenv("GOPATH"), fp.ConfigDir[7:])
+	}
+	return fp.ConfigDir
 }

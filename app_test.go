@@ -1,7 +1,6 @@
 package cocore_test
 
 import (
-	"fmt"
 	"github.com/legenove/cocore"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
@@ -21,16 +20,35 @@ var (
 
 func init() {
 	cocore.ReloadTime = 3 * time.Second
-	cocore.InitApp(true, "", "$GOPATH/src/github.com/legenove/cocore/conf", "")
-	filePath = path.Join(cocore.App.ConfigDir, "app.toml")
-	backupPath = path.Join(cocore.App.ConfigDir, "app_back.toml")
-	updatePath = path.Join(cocore.App.ConfigDir, "update_app.toml")
+	cocore.InitApp(true, "", cocore.ConfigParam{
+		Type:      cocore.TYPE_CONFIG_FILE,
+		Name:      "app.toml",
+		ParseType: "toml",
+		Nacos:     nil,
+		File:      &cocore.FileParam{
+			Env: "",
+			ConfigDir: "$GOPATH/src/github.com/legenove/cocore/conf",
+		},
+	})
+	configDir := cocore.App.AppConfParams.File.GetConfPath()
+	filePath = path.Join(configDir, "app.toml")
+	backupPath = path.Join(configDir, "app_back.toml")
+	updatePath = path.Join(configDir, "update_app.toml")
 	loggerName = "loggerTest"
 }
 
 func TestInitApp(t *testing.T) {
 	cocore.Reset()
-	cocore.InitApp(true, "", "$GOPATH/src/github.com/legenove/cocore/conf", "")
+	cocore.InitApp(true, "", cocore.ConfigParam{
+		Type:      cocore.TYPE_CONFIG_FILE,
+		Name:      "app.toml",
+		ParseType: "toml",
+		Nacos:     nil,
+		File:      &cocore.FileParam{
+			Env: "",
+			ConfigDir: "$GOPATH/src/github.com/legenove/cocore/conf",
+		},
+	})
 	res := cocore.App.GetStringConfig("abc", "abc")
 	assert.Equal(t, "abc", res)
 	res = cocore.App.GetStringConfig("LOG_ENABLE_LEVEL", "debug")
@@ -39,9 +57,17 @@ func TestInitApp(t *testing.T) {
 
 func TestAutoLoadAppConfig(t *testing.T) {
 	cocore.Reset()
-	fmt.Println(filePath)
 	removeFile(filePath)
-	cocore.InitApp(true, "", "$GOPATH/src/github.com/legenove/cocore/conf", "")
+	cocore.InitApp(true, "", cocore.ConfigParam{
+		Type:      cocore.TYPE_CONFIG_FILE,
+		Name:      "app.toml",
+		ParseType: "toml",
+		Nacos:     nil,
+		File:      &cocore.FileParam{
+			Env: "",
+			ConfigDir: "$GOPATH/src/github.com/legenove/cocore/conf",
+		},
+	})
 	res := cocore.App.GetStringConfig("LOG_ENABLE_LEVEL", "debug")
 	assert.Equal(t, "debug", res)
 	copyFile(backupPath, filePath)
@@ -57,9 +83,17 @@ func TestInitFunc(t *testing.T) {
 		test++
 	}
 	cocore.RegisterInitFunc("test", f)
-	fmt.Println(filePath)
 	var res string
-	cocore.InitApp(true, "", "$GOPATH/src/github.com/legenove/cocore/conf", "")
+	cocore.InitApp(true, "", cocore.ConfigParam{
+		Type:      cocore.TYPE_CONFIG_FILE,
+		Name:      "app.toml",
+		ParseType: "toml",
+		Nacos:     nil,
+		File:      &cocore.FileParam{
+			Env: "",
+			ConfigDir: "$GOPATH/src/github.com/legenove/cocore/conf",
+		},
+	})
 	res = cocore.App.GetStringConfig("LOG_ENABLE_LEVEL", "debug")
 	assert.Equal(t, "info", res)
 	res = cocore.App.GetStringConfig("update_val", "none")

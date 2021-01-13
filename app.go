@@ -1,13 +1,9 @@
 package cocore
 
 import (
-	"os"
-	"path/filepath"
-	"strings"
+	"github.com/legenove/easyconfig/ifacer"
 	"sync"
 	"time"
-
-	"github.com/legenove/viper_conf"
 )
 
 var App *Application
@@ -22,11 +18,10 @@ func init() {
 
 type Application struct {
 	sync.Mutex
-	DEBUG       bool
-	AppENV      string
-	ConfigDir   string
-	AppConf     *viper_conf.ViperConf
-	AppConfName string
+	DEBUG         bool
+	AppENV        string
+	AppConf       ifacer.Configer
+	AppConfParams ConfigParam
 }
 
 func RegisterInitFunc(name string, f func()) {
@@ -37,7 +32,7 @@ func (app *Application) loadAppConf() {
 	app.Lock()
 	defer app.Unlock()
 	if app.AppConf == nil {
-		appConf, err := Conf.Instance(app.AppConfName, nil)
+		appConf, err := Conf.Instance(app.AppConfParams.Name, app.AppConfParams.ParseType, nil)
 		if err == nil {
 			App.AppConf = appConf
 			listenAppConfChange()
@@ -58,24 +53,16 @@ func (app *Application) GetStringConfig(key, default_value string) string {
 	return default_value
 }
 
-func InitApp(debug bool, appEnv string, configDir, appConfName string) {
+func InitApp(debug bool, appEnv string, configParams ConfigParam) {
 	if App != nil {
 		return
 	}
-	if appConfName == "" {
-		appConfName = "app.toml"
-	}
 	App = &Application{
-		DEBUG:       debug,
-		AppENV:      appEnv,
-		ConfigDir:   configDir,
-		AppConfName: appConfName,
+		DEBUG:         debug,
+		AppENV:        appEnv,
+		AppConfParams: configParams,
 	}
-	//注册配置信息
-	if strings.HasPrefix(App.ConfigDir, "$GOPATH") {
-		App.ConfigDir = filepath.Join(os.Getenv("GOPATH"), App.ConfigDir[7:])
-	}
-	InitConf(App.AppENV, App.ConfigDir)
+	InitConf(App.AppConfParams)
 	App.loadAppConf()
 	go func() {
 		for {
@@ -116,7 +103,7 @@ func listenAppConfChange() {
 			select {
 			case <-resetChan:
 				return
-			case <-App.AppConf.OnChange:
+			case <-App.AppConf.OnChangeChan():
 				initial()
 			}
 		}
