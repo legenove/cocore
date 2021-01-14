@@ -36,6 +36,7 @@ var (
 	TimeLocation, _ = utils.TimeLoadLocation()
 	LogEnableLevel  = zap.InfoLevel
 	LogFormat       string
+	TimeDelter      int64 = 86410
 )
 
 const (
@@ -71,7 +72,7 @@ func init() {
 		for {
 			nowat := time.Now().Unix()
 			for file, t := range LogPool.registerTime {
-				if t < nowat-86410 {
+				if t < nowat-TimeDelter {
 					LogPool.mutex.Lock()
 					delete(LogPool.registerTime, file)
 					l, ok := LogPool.writers[file]
@@ -121,8 +122,10 @@ func initialLog() {
 		LogEnableLevel = zap.InfoLevel
 	}
 	if app.GetStringConfig("LOG_TIME_GROUP", LOG_FORMAT_DAILY) == LOG_FORMAT_HOUR {
+		TimeDelter = 3610
 		LogFormat = "20060102T15"
 	} else {
+		TimeDelter = 86410
 		LogFormat = "20060102"
 	}
 	host, e := os.Hostname()
