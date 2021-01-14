@@ -1,6 +1,7 @@
 package cocore
 
 import (
+	"fmt"
 	"github.com/legenove/easyconfig/ifacer"
 	"sync"
 	"time"
@@ -19,6 +20,7 @@ func init() {
 type Application struct {
 	sync.Mutex
 	DEBUG         bool
+	LogDir        string
 	AppENV        string
 	AppConf       ifacer.Configer
 	AppConfParams ConfigParam
@@ -64,6 +66,11 @@ func InitApp(debug bool, appEnv string, configParams ConfigParam) {
 	}
 	InitConf(App.AppConfParams)
 	App.loadAppConf()
+	select {
+	case <-time.After(3*time.Second):
+		fmt.Println("Conf Load Error: init app conf error in 3 secend")
+	case <-App.AppConf.OnChangeChan():
+	}
 	go func() {
 		for {
 			if App.AppConf != nil {

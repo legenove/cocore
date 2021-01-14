@@ -101,7 +101,10 @@ func init() {
 }
 
 func initialLog(app *Application) {
-	LogPool.LogDir = app.GetStringConfig("LOG_DIR", "/data/logs")
+	LogPool.LogDir = app.LogDir
+	if len(LogPool.LogDir) == 0 {
+		LogPool.LogDir = "/tmp/logs/"
+	}
 	if !strings.HasSuffix(LogPool.LogDir, "/") {
 		LogPool.LogDir = LogPool.LogDir + "/"
 	}
