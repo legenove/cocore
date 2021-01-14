@@ -2,15 +2,17 @@ package cocore
 
 import (
 	"fmt"
-	"github.com/legenove/easyconfig/ifacer"
 	"sync"
 	"time"
+
+	"github.com/legenove/easyconfig/ifacer"
 )
 
 var App *Application
 var ReloadTime = 60 * time.Second
 var appInitFunc map[string]func()
 var resetChan chan struct{}
+var listenOnce sync.Once
 
 func init() {
 	appInitFunc = make(map[string]func())
@@ -30,14 +32,39 @@ func RegisterInitFunc(name string, f func()) {
 	appInitFunc[name] = f
 }
 
+func (app *Application) initAppConf() {
+	app.Lock()
+	defer app.Unlock()
+	appConf, err := Conf.Instance(app.AppConfParams.Name, app.AppConfParams.ParseType, nil)
+	if err == nil {
+		app.AppConf = appConf
+	}
+}
+func (app *Application) listenAppConfChange() {
+	if app.AppConf != nil {
+		listenOnce.Do(func() {
+			go func() {
+				for {
+					select {
+					case <-resetChan:
+						return
+					case <-App.AppConf.OnChangeChan():
+						initial()
+					}
+				}
+			}()
+		})
+	}
+}
+
 func (app *Application) loadAppConf() {
 	app.Lock()
 	defer app.Unlock()
 	if app.AppConf == nil {
 		appConf, err := Conf.Instance(app.AppConfParams.Name, app.AppConfParams.ParseType, nil)
 		if err == nil {
-			App.AppConf = appConf
-			listenAppConfChange()
+			app.AppConf = appConf
+			app.listenAppConfChange()
 		}
 	}
 }
@@ -65,11 +92,16 @@ func InitApp(debug bool, appEnv string, configParams ConfigParam) {
 		AppConfParams: configParams,
 	}
 	InitConf(App.AppConfParams)
-	App.loadAppConf()
-	select {
-	case <-time.After(3*time.Second):
-		fmt.Println("Conf Load Error: init app conf error in 3 secend")
-	case <-App.AppConf.OnChangeChan():
+	App.initAppConf()
+	if App.AppConf != nil {
+		select {
+		case <-time.After(3 * time.Second):
+			fmt.Println("Conf Load Error: init app conf error in 3 secend")
+		case <-App.AppConf.OnChangeChan():
+		}
+		App.listenAppConfChange()
+	} else {
+		fmt.Println("Conf Load Error: init error")
 	}
 	go func() {
 		for {
@@ -81,8 +113,9 @@ func InitApp(debug bool, appEnv string, configParams ConfigParam) {
 		}
 	}()
 	// 初始化log
-	initialLog(App)
+	initialLog()
 	initial()
+	RegisterInitFunc("cocoreInitLog", initialLog)
 }
 
 // for test
@@ -102,17 +135,4 @@ func initial() {
 	for _, f := range appInitFunc {
 		f()
 	}
-}
-
-func listenAppConfChange() {
-	go func() {
-		for {
-			select {
-			case <-resetChan:
-				return
-			case <-App.AppConf.OnChangeChan():
-				initial()
-			}
-		}
-	}()
 }

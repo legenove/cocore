@@ -100,7 +100,8 @@ func init() {
 	}()
 }
 
-func initialLog(app *Application) {
+func initialLog() {
+	app := App
 	LogPool.LogDir = app.LogDir
 	if len(LogPool.LogDir) == 0 {
 		LogPool.LogDir = "/tmp/logs/"
