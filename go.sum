@@ -102,8 +102,8 @@ github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORN
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
 github.com/kr/text v0.1.0 h1:45sCR5RtlFHMR4UwH9sdQ5TC8v0qDQCHnXt+kaKSTVE=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
-github.com/legenove/easy-nacos-go v1.0.1 h1:/XqWDLr8Qi0se4v61XgCBr7E1lQmxTcfHuN+YofhL0s=
-github.com/legenove/easy-nacos-go v1.0.1/go.mod h1:8gCE/fyWC2FE75RugPx5CjNTEYdUrZ/upZZCyASjzyM=
+github.com/legenove/easy-nacos-go v1.0.2 h1:GVoO2ZsnaSnu2bFogHbuaM8jn8ePXpgY4s7Lydk2EGM=
+github.com/legenove/easy-nacos-go v1.0.2/go.mod h1:8gCE/fyWC2FE75RugPx5CjNTEYdUrZ/upZZCyASjzyM=
 github.com/legenove/easyconfig v0.0.0-20210112092609-8e5d87ec7b8c/go.mod h1:EiY0JhEo2/B9UzOx5qKkSnJJxusz4JM6tvvGARo3E34=
 github.com/legenove/easyconfig v0.0.0-20210112101246-c9179bca23f9 h1:gVefRr/V3ebiViaMivBXAI9fhAxEYxUwdh0EyZsmtnc=
 github.com/legenove/easyconfig v0.0.0-20210112101246-c9179bca23f9/go.mod h1:EiY0JhEo2/B9UzOx5qKkSnJJxusz4JM6tvvGARo3E34=
