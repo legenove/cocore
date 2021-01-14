@@ -111,8 +111,8 @@ github.com/legenove/utils v0.0.0-20200903023119-a6d42e758182 h1:BDZDEguO5i18HKMW
 github.com/legenove/utils v0.0.0-20200903023119-a6d42e758182/go.mod h1:LU8q6GHxhwMIOe1AEPSASOIEoFla2d7ejICp8bVYuqs=
 github.com/legenove/viper v1.7.5 h1:weElNDgZ+7RUZcXrWeFoLn/q0UnLuC0VxViRw7X5DKc=
 github.com/legenove/viper v1.7.5/go.mod h1:Tko7Ji8Hp65dh0tLFY1MRG128qafDK41lscVMdB9ubg=
-github.com/legenove/viper_conf v1.0.8 h1:uNzqL281uDe8oBK4b+QEf5F5mAQrYQo67NF739rQgN8=
-github.com/legenove/viper_conf v1.0.8/go.mod h1:TsssthI4BvZTygEBeKZGVaAWEgJXgfIbxGBSAj9fY7w=
+github.com/legenove/viper_conf v1.0.9 h1:Y6kx1jePoVJn7He15ThQOLihktZNI///x/oV5iCO+WY=
+github.com/legenove/viper_conf v1.0.9/go.mod h1:TsssthI4BvZTygEBeKZGVaAWEgJXgfIbxGBSAj9fY7w=
 github.com/lestrrat/go-envload v0.0.0-20180220120943-6ed08b54a570 h1:0iQektZGS248WXmGIYOwRXSQhD4qn3icjMpuxwO7qlo=
 github.com/lestrrat/go-envload v0.0.0-20180220120943-6ed08b54a570/go.mod h1:BLt8L9ld7wVsvEWQbuLrUZnCMnUmLZ+CGDzKtclrTlE=
 github.com/lestrrat/go-file-rotatelogs v0.0.0-20180223000712-d3151e2a480f h1:sgUSP4zdTUZYZgAGGtN5Lxk92rK+JUFOwf+FT99EEI4=

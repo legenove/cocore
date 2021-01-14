@@ -6,7 +6,7 @@ require (
 	github.com/legenove/easy-nacos-go v1.0.2
 	github.com/legenove/easyconfig v0.0.0-20210112101246-c9179bca23f9
 	github.com/legenove/utils v0.0.0-20200903023119-a6d42e758182
-	github.com/legenove/viper_conf v1.0.8
+	github.com/legenove/viper_conf v1.0.9
 	github.com/nacos-group/nacos-sdk-go v1.0.3
 	github.com/stretchr/testify v1.6.1
 	go.uber.org/zap v1.15.0

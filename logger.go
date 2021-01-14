@@ -11,9 +11,10 @@ import (
 )
 
 type lwriter struct {
-	logger *zap.Logger
-	free   func()
-	file   string
+	logger       *zap.Logger
+	free         func()
+	file         string
+	registerTime int64
 }
 
 type fdGC struct {
@@ -23,7 +24,6 @@ type fdGC struct {
 
 type Logger struct {
 	writers      map[string]*lwriter
-	registerTime map[string]int64
 	mutex        sync.RWMutex
 	LogDir       string
 	Debug        bool
@@ -55,7 +55,6 @@ func init() {
 	LogPool = &Logger{
 		writers:      make(map[string]*lwriter),
 		free:         make(map[string]*fdGC),
-		registerTime: make(map[string]int64),
 	}
 	go func() {
 		for {
@@ -71,27 +70,20 @@ func init() {
 	go func() {
 		for {
 			nowat := time.Now().Unix()
-			for file, t := range LogPool.registerTime {
-				if t < nowat-TimeDelter {
+			for k, l := range LogPool.writers {
+				if l.registerTime < nowat-TimeDelter {
 					LogPool.mutex.Lock()
-					delete(LogPool.registerTime, file)
-					l, ok := LogPool.writers[file]
-					if ok {
-						fdgc := &fdGC{free: l.free, expir: time.Now().Unix()}
-						LogPool.free[l.file] = fdgc
-						delete(LogPool.writers, file)
-					}
+					fdgc := &fdGC{free: l.free, expir: time.Now().Unix()}
+					LogPool.free[l.file] = fdgc
+					delete(LogPool.writers, k)
 					LogPool.mutex.Unlock()
 				} else {
 					// 防止文件被删除
-					if !utils.FileExists(getLogFile(file)) {
+					if !utils.FileExists(getLogFile(k)) {
 						LogPool.mutex.Lock()
-						l, ok := LogPool.writers[file]
-						if ok {
-							fdgc := &fdGC{free: l.free, expir: time.Now().Unix()}
-							LogPool.free[l.file] = fdgc
-							delete(LogPool.writers, file)
-						}
+						fdgc := &fdGC{free: l.free, expir: time.Now().Unix()}
+						LogPool.free[l.file] = fdgc
+						delete(LogPool.writers, k)
 						LogPool.mutex.Unlock()
 					}
 				}
@@ -175,14 +167,13 @@ func (pl *Logger) Instance(k string) (*zap.Logger, error) {
 	defer pl.mutex.Unlock()
 	l, ok := pl.writers[k]
 	if ok {
-		// 不需要判断，因为输入的时候，会优先创建文件
-		//f := getLogFile(k)
-		//if utils.FileExists(f) {
-		return l.logger, nil
-		//}
-		//fdgc := &fdGC{free: l.free, expir: time.Now().In(TimeLocation).Unix()}
-		//pl.free[l.file] = fdgc
-		//delete(pl.writers, k)
+		f := getLogFile(k)
+		if utils.FileExists(f) {
+			return l.logger, nil
+		}
+		fdgc := &fdGC{free: l.free, expir: time.Now().In(TimeLocation).Unix()}
+		pl.free[l.file] = fdgc
+		delete(pl.writers, k)
 	}
 	var err error
 	file, err := initLogFile(k)
@@ -194,9 +185,7 @@ func (pl *Logger) Instance(k string) (*zap.Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	pl.writers[k] = &lwriter{logger: logger, free: free, file: file}
-	pl.registerTime[k] = time.Now().Unix()
+	pl.writers[k] = &lwriter{logger: logger, free: free, file: file, registerTime: time.Now().Unix()}
 	return logger, nil
 }
 
