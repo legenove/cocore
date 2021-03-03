@@ -20,7 +20,8 @@ var (
 
 func init() {
 	cocore.ReloadTime = 3 * time.Second
-	cocore.InitApp(true, "", cocore.ConfigParam{
+	cocore.InitApp(true, "", cocore.AppParam{
+		LogType:   cocore.LOG_TYPE_CONSOLE,
 		Source:    cocore.SOURCE_CONFIG_FILE,
 		Name:      "app.toml",
 		ParseType: "toml",
@@ -30,7 +31,7 @@ func init() {
 			ConfigDir: "$GOPATH/src/github.com/legenove/cocore/conf",
 		},
 	})
-	configDir := cocore.App.AppConfParams.File.GetConfPath()
+	configDir := cocore.App.AppOptions.File.GetConfPath()
 	filePath = path.Join(configDir, "app.toml")
 	backupPath = path.Join(configDir, "app_back.toml")
 	updatePath = path.Join(configDir, "update_app.toml")
@@ -39,7 +40,7 @@ func init() {
 
 func TestInitApp(t *testing.T) {
 	cocore.Reset()
-	cocore.InitApp(true, "", cocore.ConfigParam{
+	cocore.InitApp(true, "", cocore.AppParam{
 		Source:    cocore.SOURCE_CONFIG_FILE,
 		Name:      "app.toml",
 		ParseType: "toml",
@@ -57,7 +58,7 @@ func TestInitApp(t *testing.T) {
 
 func TestInitAppByYaml(t *testing.T) {
 	cocore.Reset()
-	cocore.InitApp(true, "", cocore.ConfigParam{
+	cocore.InitApp(true, "", cocore.AppParam{
 		Source:    cocore.SOURCE_CONFIG_FILE,
 		Name:      "app.yaml",
 		ParseType: "yaml",
@@ -76,7 +77,7 @@ func TestInitAppByYaml(t *testing.T) {
 func TestAutoLoadAppConfig(t *testing.T) {
 	cocore.Reset()
 	removeFile(filePath)
-	cocore.InitApp(true, "", cocore.ConfigParam{
+	cocore.InitApp(true, "", cocore.AppParam{
 		Source:    cocore.SOURCE_CONFIG_FILE,
 		Name:      "app.toml",
 		ParseType: "toml",
@@ -102,7 +103,7 @@ func TestInitFunc(t *testing.T) {
 	}
 	cocore.RegisterInitFunc("test", f)
 	var res string
-	cocore.InitApp(true, "", cocore.ConfigParam{
+	cocore.InitApp(true, "", cocore.AppParam{
 		Source:    cocore.SOURCE_CONFIG_FILE,
 		Name:      "app.toml",
 		ParseType: "toml",
@@ -129,13 +130,30 @@ func TestInitFunc(t *testing.T) {
 }
 
 func TestLogger_Instance(t *testing.T) {
+	cocore.InitApp(true, "", cocore.AppParam{
+		LogType:   cocore.LOG_TYPE_CONSOLE,
+		Source:    cocore.SOURCE_CONFIG_FILE,
+		Name:      "app.toml",
+		ParseType: "toml",
+		Nacos:     nil,
+		File: &cocore.FileParam{
+			Env:       "",
+			ConfigDir: "$GOPATH/src/github.com/legenove/cocore/conf",
+		},
+	})
 	log, err := cocore.LogPool.Instance(loggerName)
 	if err != nil {
 		t.Error(err.Error())
 	}
 	log.Info("msg", zap.String("test1", "123"))
 
-	os.RemoveAll("/tmp/cocore")
+	log, err = cocore.LogPool.Instance(loggerName+"1")
+	if err != nil {
+		t.Error(err.Error())
+	}
+	log.Info("msg", zap.String("test1", "123"))
+
+	//os.RemoveAll("/tmp/cocore")
 }
 
 func removeFile(dst string) {

@@ -22,11 +22,12 @@ func init() {
 
 type Application struct {
 	sync.Mutex
-	DEBUG         bool
-	LogDir        string
-	AppENV        string
-	AppConf       ifacer.Configer
-	AppConfParams ConfigParam
+	DEBUG      bool
+	LogDir     string
+	LogType    string
+	AppENV     string
+	AppConf    ifacer.Configer
+	AppOptions AppParam
 }
 
 func RegisterInitFunc(name string, f func()) {
@@ -36,7 +37,7 @@ func RegisterInitFunc(name string, f func()) {
 func (app *Application) initAppConf() error {
 	app.Lock()
 	defer app.Unlock()
-	appConf, err := Conf.Instance(app.AppConfParams.Name, app.AppConfParams.ParseType, nil)
+	appConf, err := Conf.Instance(app.AppOptions.Name, app.AppOptions.ParseType, nil)
 	if err == nil {
 		app.AppConf = appConf
 	}
@@ -63,7 +64,7 @@ func (app *Application) loadAppConf() {
 	app.Lock()
 	defer app.Unlock()
 	if app.AppConf == nil {
-		appConf, err := Conf.Instance(app.AppConfParams.Name, app.AppConfParams.ParseType, nil)
+		appConf, err := Conf.Instance(app.AppOptions.Name, app.AppOptions.ParseType, nil)
 		if err == nil {
 			app.AppConf = appConf
 			app.listenAppConfChange()
@@ -84,16 +85,26 @@ func (app *Application) GetStringConfig(key, default_value string) string {
 	return default_value
 }
 
-func InitApp(debug bool, appEnv string, configParams ConfigParam) {
+func InitApp(debug bool, appEnv string, params AppParam) {
 	if App != nil {
 		return
 	}
-	App = &Application{
-		DEBUG:         debug,
-		AppENV:        appEnv,
-		AppConfParams: configParams,
+	var logType string
+	switch params.LogType {
+	case LOG_TYPE_CONSOLE:
+		logType = LOG_TYPE_CONSOLE
+	case LOG_TYPE_FILE:
+		logType = LOG_TYPE_FILE
+	default:
+		logType = LOG_TYPE_FILE
 	}
-	InitConf(App.AppConfParams)
+	App = &Application{
+		DEBUG:      debug,
+		AppENV:     appEnv,
+		LogType:    logType,
+		AppOptions: params,
+	}
+	InitConf(App.AppOptions)
 	err := App.initAppConf()
 	if err == nil {
 		select {

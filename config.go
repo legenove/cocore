@@ -18,7 +18,7 @@ const (
 	SOURCE_CONFIG_FILE  // 文件配置
 )
 
-func InitConf(param ConfigParam) {
+func InitConf(param AppParam) {
 	if Conf != nil {
 		return
 	}
@@ -31,7 +31,8 @@ func InitConf(param ConfigParam) {
 	}
 }
 
-type ConfigParam struct {
+type AppParam struct {
+	LogType   string
 	Source    int
 	Name      string
 	ParseType string

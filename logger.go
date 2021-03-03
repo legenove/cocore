@@ -23,11 +23,12 @@ type fdGC struct {
 }
 
 type Logger struct {
-	writers      map[string]*lwriter
-	mutex        sync.RWMutex
-	LogDir       string
-	Debug        bool
-	free         map[string]*fdGC
+	writers map[string]*lwriter
+	mutex   sync.RWMutex
+	LogDir  string
+	LogType string
+	Debug   bool
+	free    map[string]*fdGC
 }
 
 var (
@@ -40,10 +41,16 @@ var (
 )
 
 const (
-	LOG_LEVEL_DEBUG = "debug"
-	LOG_LEVEL_INFO  = "info"
-	LOG_LEVEL_WARN  = "warn"
-	LOG_LEVEL_ERROR = "error"
+	LOG_LEVEL_DEBUG  = "debug"
+	LOG_LEVEL_INFO   = "info"
+	LOG_LEVEL_WARN   = "warn"
+	LOG_LEVEL_ERROR  = "error"
+	LOG_LEVEL_SILENT = "silent"
+)
+
+const (
+	LOG_TYPE_FILE    = "file"
+	LOG_TYPE_CONSOLE = "console"
 )
 
 const (
@@ -53,14 +60,16 @@ const (
 
 func init() {
 	LogPool = &Logger{
-		writers:      make(map[string]*lwriter),
-		free:         make(map[string]*fdGC),
+		writers: make(map[string]*lwriter),
+		free:    make(map[string]*fdGC),
 	}
 	go func() {
 		for {
 			for file, gc := range LogPool.free {
 				LogPool.mutex.Lock()
-				gc.free()
+				if gc.free != nil {
+					gc.free()
+				}
 				delete(LogPool.free, file)
 				LogPool.mutex.Unlock()
 			}
@@ -96,6 +105,7 @@ func init() {
 func initialLog() {
 	app := App
 	LogPool.LogDir = app.LogDir
+	LogPool.LogType = app.LogType
 	if len(LogPool.LogDir) == 0 {
 		LogPool.LogDir = "/tmp/logs/"
 	}
@@ -130,26 +140,32 @@ func initialLog() {
 	LogHost = "/" + host
 }
 
-func newLogger(file string) (*zap.Logger, func(), error) {
+func newLogger(file string, logType string) (*zap.Logger, func(), error) {
 	encoderConfig := zap.NewProductionEncoderConfig()
 	encoderConfig.TimeKey = "timestamp"
 	encoderConfig.EncodeTime = func(ts time.Time, encoder zapcore.PrimitiveArrayEncoder) {
 		encoder.AppendInt64(ts.In(TimeLocation).Unix())
 	}
-
-	writer, closeFD, err := zap.Open(file)
-	if err != nil {
-		return nil, nil, err
-	}
-
 	var level zap.AtomicLevel
 	if LogPool.Debug {
 		level = zap.NewAtomicLevelAt(zap.DebugLevel)
 	} else {
 		level = zap.NewAtomicLevelAt(LogEnableLevel)
 	}
-
-	core := zapcore.NewCore(zapcore.NewJSONEncoder(encoderConfig), writer, level)
+	var core zapcore.Core
+	var closeFD func()
+	var err error
+	if logType == LOG_TYPE_FILE {
+		var writer zapcore.WriteSyncer
+		writer, closeFD, err = zap.Open(file)
+		if err != nil {
+			return nil, nil, err
+		}
+		core = zapcore.NewCore(zapcore.NewJSONEncoder(encoderConfig), writer, level)
+	} else {
+		closeFD = func() {}
+		core = zapcore.NewCore(zapcore.NewJSONEncoder(encoderConfig), os.Stdout, level)
+	}
 	logger := zap.New(core)
 	host, e := os.Hostname()
 	if e != nil {
@@ -180,8 +196,7 @@ func (pl *Logger) Instance(k string) (*zap.Logger, error) {
 	if err != nil {
 		return nil, err
 	}
-
-	logger, free, err := newLogger(file)
+	logger, free, err := newLogger(file, pl.LogType)
 	if err != nil {
 		return nil, err
 	}
