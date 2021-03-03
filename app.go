@@ -118,6 +118,9 @@ func InitApp(debug bool, appEnv string, params AppParam) {
 	}
 	go func() {
 		for {
+			if App == nil {
+				break
+			}
 			if App.AppConf != nil {
 				break
 			}
@@ -133,9 +136,8 @@ func InitApp(debug bool, appEnv string, params AppParam) {
 
 // for test
 func Reset() {
-	if len(resetChan) == 0 {
-		resetChan <- struct{}{}
-	}
+	close(resetChan)
+	time.Sleep(1 * time.Millisecond)
 	App = nil
 	Conf = nil
 	appInitFunc = make(map[string]func())

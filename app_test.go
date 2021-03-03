@@ -130,6 +130,7 @@ func TestInitFunc(t *testing.T) {
 }
 
 func TestLogger_Instance(t *testing.T) {
+	cocore.Reset()
 	cocore.InitApp(true, "", cocore.AppParam{
 		LogType:   cocore.LOG_TYPE_CONSOLE,
 		Source:    cocore.SOURCE_CONFIG_FILE,
