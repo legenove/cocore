@@ -72,6 +72,13 @@ func (app *Application) loadAppConf() {
 	}
 }
 
+func (app *Application) GetAppConfig() ifacer.Configer {
+	if app.AppConf == nil {
+		app.loadAppConf()
+	}
+	return app.AppConf
+}
+
 func (app *Application) GetStringConfig(key, default_value string) string {
 	if app.AppConf == nil {
 		app.loadAppConf()
