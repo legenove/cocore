@@ -106,12 +106,14 @@ github.com/legenove/easy-nacos-go v1.0.3 h1:y1tanTlS7/vvz73dZhAJ3jBa2k9s6qLXtn9F
 github.com/legenove/easy-nacos-go v1.0.3/go.mod h1:ACYMcgpIgfLf6di0szU0ubu8S0YiVHu5382Q6mQME6Q=
 github.com/legenove/easyconfig v0.0.0-20210112101246-c9179bca23f9 h1:gVefRr/V3ebiViaMivBXAI9fhAxEYxUwdh0EyZsmtnc=
 github.com/legenove/easyconfig v0.0.0-20210112101246-c9179bca23f9/go.mod h1:EiY0JhEo2/B9UzOx5qKkSnJJxusz4JM6tvvGARo3E34=
+github.com/legenove/easyconfig v0.0.0-20210304115308-8a9aa78abffb h1:orCzr79Y8eVa3LtBX0Hw3No3u40As6B8VadMLDtiEBo=
+github.com/legenove/easyconfig v0.0.0-20210304115308-8a9aa78abffb/go.mod h1:EiY0JhEo2/B9UzOx5qKkSnJJxusz4JM6tvvGARo3E34=
 github.com/legenove/utils v1.0.1 h1:/LFI3udPgPd5zZ2jPD5BEUtY3wTEn7zI8B8lwqrNZk8=
 github.com/legenove/utils v1.0.1/go.mod h1:WEVvds8ztdMoAZOKCtLXSUu1wP0C8NkQvuXS1CHytFk=
 github.com/legenove/viper v1.7.5 h1:weElNDgZ+7RUZcXrWeFoLn/q0UnLuC0VxViRw7X5DKc=
 github.com/legenove/viper v1.7.5/go.mod h1:Tko7Ji8Hp65dh0tLFY1MRG128qafDK41lscVMdB9ubg=
-github.com/legenove/viper_conf v1.0.9 h1:Y6kx1jePoVJn7He15ThQOLihktZNI///x/oV5iCO+WY=
-github.com/legenove/viper_conf v1.0.9/go.mod h1:TsssthI4BvZTygEBeKZGVaAWEgJXgfIbxGBSAj9fY7w=
+github.com/legenove/viper_conf v1.0.10 h1:og/7gomsJDThIt5Vi66/lNlpXm6WB8JU7+E42g0k85Y=
+github.com/legenove/viper_conf v1.0.10/go.mod h1:TsssthI4BvZTygEBeKZGVaAWEgJXgfIbxGBSAj9fY7w=
 github.com/lestrrat/go-envload v0.0.0-20180220120943-6ed08b54a570 h1:0iQektZGS248WXmGIYOwRXSQhD4qn3icjMpuxwO7qlo=
 github.com/lestrrat/go-envload v0.0.0-20180220120943-6ed08b54a570/go.mod h1:BLt8L9ld7wVsvEWQbuLrUZnCMnUmLZ+CGDzKtclrTlE=
 github.com/lestrrat/go-file-rotatelogs v0.0.0-20180223000712-d3151e2a480f h1:sgUSP4zdTUZYZgAGGtN5Lxk92rK+JUFOwf+FT99EEI4=
